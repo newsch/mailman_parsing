@@ -1,4 +1,7 @@
+# Mailman Archive Parsing
+
 ## Notes
+### General
 - format of archives is called mbox. Python module for these [here](https://docs.python.org/3.5/library/mailbox.html#mailbox.Message). This should be used instead of regex-ing everything.
 - In-Reply-To and other headers are part of the [RFC 2822 standard](https://tools.ietf.org/html/rfc2822.html).
 - Message-ID is explained more ^
