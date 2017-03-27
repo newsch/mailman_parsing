@@ -31,10 +31,9 @@ class Message:
                             self.send_datetime.strftime('%Y-%m-%d %H:%M:%S'),
                             **self.__dict__})
 
-    def get_thread(self):
+    def print_children(self):
         # thread_str = self.__str__()
         print(self)
         for child in self.children:
-            print('^')
-            print(child.get_thread())
+            print('|   '.join(child.print_children().splitlines(True)))
         # return thread_str
