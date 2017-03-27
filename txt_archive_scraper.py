@@ -2,6 +2,9 @@
 from datetime import datetime
 import re
 from message import Message
+import pdb
+import logging
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 
 def get_raw_messages(archive_path='sample_thread_text.txt'):
@@ -41,7 +44,7 @@ def process_raw_message(raw_message, remove_quoted_emails=True):
         if pattern_match:
             pattern_group = pattern_match.group(1)
         else:
-            print('%s not found' % key)
+            logging.warning('%s not found' % key)
             pattern_group = None
 
         # special cases
@@ -64,8 +67,7 @@ def process_raw_message(raw_message, remove_quoted_emails=True):
             for quote_key, quote_pattern in quote_patterns.items():
                 quote_pattern_match = re.search(quote_pattern, pattern_group, re.MULTILINE | re.IGNORECASE)
                 if quote_pattern_match:
-                    print('Found "{}" quote pattern.'.format(quote_key))
-                    print(quote_pattern_match.group())
+                    logging.debug('Found "{}" quote pattern:\n{}'.format(quote_key, quote_pattern_match.group()))
                     quote_stripped_group = quote_stripped_group[:quote_pattern_match.start()]
             message_values[key] = quote_stripped_group.strip('\n')
         elif key == 'content':
@@ -80,7 +82,7 @@ def process_raw_message(raw_message, remove_quoted_emails=True):
     }
     for content_check_type, content_check_pattern in content_check_patterns.items():
         if content_check_pattern.match(message_values['content']):
-            print('warning: message {} content {}').format(message_values['message_id'], content_check_type)
+            logging.warn('message {} content {}').format(message_values['message_id'], content_check_type)
     return Message(**message_values)
 
 
@@ -101,11 +103,11 @@ def link_messages(messages):
                 for potential_parent in messages:
                     if potential_parent.message_id == reply_id:
                         message.add_parent(potential_parent)
-                        print('Found parent {} for message {}'.format(potential_parent.message_id, message.message_id))
+                        logging.debug('Found parent {} for message {}'.format(potential_parent.message_id, message.message_id))
                         potential_parent.add_child(message)
         else:
-            print('No "In-Reply-To" field found for message ' + message.message_id)
-    print('Finished finding parents')
+            logging.debug('No "In-Reply-To" field found for message ' + message.message_id)
+    logging.info('Finished assigning parents and children')
     # set children based on new parents
     # for message in messages:
     #     if message.parent and message not in message.parent.children:
@@ -119,6 +121,7 @@ def link_messages(messages):
 
 test_messages = process_raw_messages(get_raw_messages(archive_path='sample_thread_text_2.txt'))
 link_messages(test_messages)
+# test_messages[0].print_children()
 # test_message = test_messages[1]
 for test_message in test_messages:
     print('MESSAGE: {}PARENT: {}CHILDREN:\n{}'.format(test_message, test_message.parent, (*test_message.children)))
