@@ -15,7 +15,7 @@ def get_raw_messages(archive_path='sample_thread_text.txt'):
         list_name = 'therapy'
         domain = 'lists.olin.edu'
         new_message_pattern = re.compile(
-            'From %s at %s  (.*)' % (list_name, domain))
+            '^From %s at %s  (.*)' % (list_name, domain), re.MULTILINE)  # apparently this should work with only '^From (.*)\n' or something similar
         raw_messages = []
         raw_message = ''
         for raw_line in file_content:
